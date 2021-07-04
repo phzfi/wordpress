@@ -48,7 +48,6 @@ pipeline {
 
         sh "./down.sh || true"
         sh "./clean.sh"
-        sh "/root/systools/bin/docker-clean.sh || true" //phz custom docker clean script
         sh "sudo chown -R jenkins:jenkins ."
 
         echo "Debug branch name"
@@ -133,7 +132,6 @@ pipeline {
     always {
       script {
         sh "./down.sh || true"
-        sh "/root/systools/bin/docker-clean.sh || true" //phz custom docker clean script
         sh "sudo chown -R jenkins:jenkins ."
       }
     }
