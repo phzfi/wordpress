@@ -9,9 +9,6 @@ pipeline {
   environment {
     BRANCH_NAME = "${GIT_BRANCH.split('/')[1]}"
     BUILD_ENV = [master: 'prod', develop: 'stg'].get(GIT_BRANCH.split('/')[1], 'dev')
-    PROJECT_NAME = "ubuntu32-nginx"
-    SLACK_CHANNEL = "#marketing"
-    SERVICE_NAME = "${PROJECT_NAME}-${BUILD_ENV}"
     VERSION = "${currentBuild.number}"
   }
 
@@ -29,6 +26,10 @@ pipeline {
     stage("Clean") {
       steps {
         script {
+          SLACK_CHANNEL = "#marketing"
+          PROJECT_NAME = "ubuntu32-nginx"
+          SERVICE_NAME = "${PROJECT_NAME}-${BUILD_ENV}"
+
           //parse changelog
           def changeLogSets = currentBuild.rawBuild.changeSets
           CHANGELOG = ""
