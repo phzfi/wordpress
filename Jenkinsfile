@@ -44,9 +44,9 @@ pipeline {
             currentBuild.result = 'SUCCESS'
             return
           }
+*/
         }
         echo "Changelog:\n${CHANGELOG}"
-*/
         sh "./down.sh || true"
         sh "./clean.sh"
         sh "sudo chown -R jenkins:jenkins ."
