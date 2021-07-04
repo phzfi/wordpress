@@ -1,5 +1,6 @@
 def CHANGELOG
 def PROJECT_NAME
+def SLACK_CHANNEL
 pipeline {
   agent {
     label 'docker'
