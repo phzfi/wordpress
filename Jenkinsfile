@@ -1,6 +1,6 @@
 def CHANGELOG
-def PROJECT_NAME
-def SLACK_CHANNEL
+def PROJECT_NAME = "ubuntu32-nginx"
+def SLACK_CHANNEL = "#marketing"
 pipeline {
   agent {
     label 'docker'
@@ -10,6 +10,7 @@ pipeline {
     BRANCH_NAME = "${GIT_BRANCH.split('/')[1]}"
     BUILD_ENV = [master: 'prod', develop: 'stg'].get(GIT_BRANCH.split('/')[1], 'dev')
     VERSION = "${currentBuild.number}"
+    SERVICE_NAME = "${PROJECT_NAME}-${BUILD_ENV}"
   }
 
   options {
@@ -26,10 +27,6 @@ pipeline {
     stage("Clean") {
       steps {
         script {
-          SLACK_CHANNEL = "#marketing"
-          PROJECT_NAME = "ubuntu32-nginx"
-          SERVICE_NAME = "${PROJECT_NAME}-${BUILD_ENV}"
-
           //parse changelog
           def changeLogSets = currentBuild.rawBuild.changeSets
           CHANGELOG = ""
