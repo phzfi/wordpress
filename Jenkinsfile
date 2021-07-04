@@ -27,7 +27,8 @@ pipeline {
     stage("Clean") {
       steps {
         script {
-          //parse changelog
+          echo "Parse changelog"
+/*
           def changeLogSets = currentBuild.rawBuild.changeSets
           CHANGELOG = ""
           for (int i = 0; i < changeLogSets.size(); i++) {
@@ -45,7 +46,7 @@ pipeline {
           }
         }
         echo "Changelog:\n${CHANGELOG}"
-
+*/
         sh "./down.sh || true"
         sh "./clean.sh"
         sh "sudo chown -R jenkins:jenkins ."
