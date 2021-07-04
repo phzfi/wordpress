@@ -2,7 +2,7 @@ def CHANGELOG
 def PROJECT_NAME
 pipeline {
   agent {
-    label 'docker && 32bit'
+    label 'docker'
   }
 
   environment {
