@@ -1,11 +1,6 @@
 FROM phzfi/ubuntu32:bionic
-RUN apt-get update && \
-apt-get -y install \
-nginx-extras \
-nano \
-less \
-git \
-wget \
-curl
+
+ADD scripts/provision.sh
+RUN ./provision.sh
 
 CMD ["/etc/init.d/nginx"]
