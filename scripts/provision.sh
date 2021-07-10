@@ -13,3 +13,5 @@ apt-get -y install \
     less \
     curl
 
+./install-sh2ju.sh
+
