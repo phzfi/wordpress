@@ -7,8 +7,9 @@ pipeline {
   }
 
   environment {
-    BRANCH_NAME = "${GIT_BRANCH.split('/')[1]}"
-    BUILD_ENV = [master: 'prod', develop: 'stg'].get(GIT_BRANCH.split('/')[1], 'dev')
+    //BRANCH_NAME = "${GIT_BRANCH.split('/')[1]}"
+    BRANCH_NAME = "${GIT_BRANCH}"
+    BUILD_ENV = [master: 'prod', develop: 'stg'].get(GIT_BRANCH, 'dev')
     VERSION = "${currentBuild.number}"
     SERVICE_NAME = "${PROJECT_NAME}-${BUILD_ENV}"
   }
@@ -54,7 +55,8 @@ pipeline {
         echo "Debug branch name"
         echo "env.gitlabBranch: " + env.gitlabBranch
         echo "scm.branches[0].name: " + scm.branches[0].name
-        echo "{GIT_BRANCH.split('/')[1]}: " + "${GIT_BRANCH.split('/')[1]}"
+        //echo "{GIT_BRANCH.split('/')[1]}: " + "${GIT_BRANCH.split('/')[1]}"
+        echo "{GIT_BRANCH}: " + "${GIT_BRANCH}"
         echo "BRANCH_NAME is set to: " + "${BRANCH_NAME}"
 
         checkout scm
