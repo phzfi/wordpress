@@ -1,10 +1,9 @@
 FROM phzfi/ubuntu32:bionic-latest
 
-ADD scripts/install-sh2ju.sh
-ADD scripts/provision.sh
+ADD scripts/provision.sh /opt
 ADD tests/* /opt/
 
-RUN ./provision.sh
+RUN /opt/provision.sh
 
 ADD etc/* /etc
 
