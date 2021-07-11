@@ -7,7 +7,6 @@ pipeline {
   }
 
   environment {
-    //BRANCH_NAME = "${GIT_BRANCH.split('/')[1]}"
     BRANCH_NAME = "${GIT_BRANCH}"
     BUILD_ENV = [master: 'prod', develop: 'stg'].get(GIT_BRANCH, 'dev')
     VERSION = "${currentBuild.number}"
@@ -29,7 +28,6 @@ pipeline {
       steps {
         script {
           echo "Parse changelog"
-/*
           def changeLogSets = currentBuild.rawBuild.changeSets
           CHANGELOG = ""
           for (int i = 0; i < changeLogSets.size(); i++) {
@@ -45,7 +43,6 @@ pipeline {
             currentBuild.result = 'SUCCESS'
             return
           }
-*/
         }
         echo "Changelog:\n${CHANGELOG}"
         sh "./down.sh || true"
@@ -55,7 +52,6 @@ pipeline {
         echo "Debug branch name"
         echo "env.gitlabBranch: " + env.gitlabBranch
         echo "scm.branches[0].name: " + scm.branches[0].name
-        //echo "{GIT_BRANCH.split('/')[1]}: " + "${GIT_BRANCH.split('/')[1]}"
         echo "{GIT_BRANCH}: " + "${GIT_BRANCH}"
         echo "BRANCH_NAME is set to: " + "${BRANCH_NAME}"
 
@@ -68,34 +64,10 @@ pipeline {
       steps {
         echo "Provision Branch ${BRANCH_NAME} with Env ${BUILD_ENV}"
         timeout(30) {
-          sh "./up.sh"
+          echo "Start provisioning"
         }
 
         updateGitlabCommitStatus name: 'Provision', state: 'success'
-      }
-    }
-
-    stage("Quality") {
-      steps {
-        echo "Running Code Quality checks"
-        timeout(15) {
-          //sh script:"docker-compose run web syntax-check.sh", returnStatus:true
-        }
-
-        updateGitlabCommitStatus name: 'Quality', state: 'success'
-      }
-    }
-
-    stage("Unit Test") {
-      steps {
-        echo "Running unit tests"       
-        timeout(15) {
-          //Suppress the exit code so that Jenkins can report the number of failures or mark the build unstable
-          sh "docker-compose run web test.sh2ju || true"
-          junit 'report/junit.xml'
-        }
-
-        updateGitlabCommitStatus name: 'Unit Test', state: 'success'
       }
     }
 
@@ -108,11 +80,36 @@ pipeline {
           [$class: 'UsernamePasswordMultiBinding', credentialsId: 'DOCKER_HUB', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD']
         ]) {
           timeout(400) {
-            sh script:"docker/build.sh ${VERSION} ${DOCKER_HUB_USERNAME} ${DOCKER_HUB_PASSWORD}", returnStatus:true
+            sh script:"./docker/build.sh ${VERSION} ${DOCKER_HUB_USERNAME} ${DOCKER_HUB_PASSWORD}", returnStatus:true
           }
         }
 
         updateGitlabCommitStatus name: 'Build & Publish', state: 'success'
+      }
+    }
+
+    stage("Quality") {
+      steps {
+        echo "Running Code Quality checks"
+        timeout(15) {
+          sh script:"./up.sh", returnStatus:true
+          //sh script:"docker-compose run web syntax-check.sh", returnStatus:true
+        }
+
+        updateGitlabCommitStatus name: 'Quality', state: 'success'
+      }
+    }
+
+    stage("Unit Test") {
+      steps {
+        echo "Running unit tests"       
+        timeout(15) {
+          //Suppress the exit code so that Jenkins can report the number of failures or mark the build unstable
+          sh "docker-compose run app /mnt/test.sh2ju || true"
+          junit 'reports/*.xml'
+        }
+
+        updateGitlabCommitStatus name: 'Unit Test', state: 'success'
       }
     }
 
@@ -127,8 +124,6 @@ pipeline {
         updateGitlabCommitStatus name: 'Acceptance Test', state: 'success'
       }
     }
-
-
   }
 
   post {

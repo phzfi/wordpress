@@ -32,8 +32,9 @@ Security: Update security updates regularly
 
 * Nginx
 * Docker 32bit
-* Ubuntu
-* Jenkins (declarative Jenkinsfile)
+* Ubuntu bionic/18.04
+* Jenkins (declarative multibranch pipeline)
+* sh2ju for testing
 
 ### 2.2. Naming, Terms and Key Concepts
 
