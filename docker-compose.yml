@@ -4,4 +4,4 @@ services:
   app:
     image: phzfi/ubuntu32-nginx:latest
     volumes:
-     - ./reports:/var/www/html/web/results
+     - ./reports:/var/www/html/results
