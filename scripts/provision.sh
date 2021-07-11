@@ -7,5 +7,3 @@ apt-get update
 apt-get -y install \
     nginx-extras
 
-./install-sh2ju.sh
-
