@@ -5,5 +5,4 @@ services:
     image: phzfi/ubuntu32-nginx:latest
     volumes:
      - ./reports:/results
-     - ./tests:/mnt
     command: ["/bin/true"]
