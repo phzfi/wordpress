@@ -15,7 +15,7 @@ IMAGE=phzfi/ubuntu32-nginx:$VERSION
 LATEST=phzfi/ubuntu32-nginx:latest
 echo "Building $IMAGE"
 
-docker build -t $IMAGE -f Dockerfile . --no-cache
+docker build --platform linux/686 -t $IMAGE -f Dockerfile . --no-cache
 docker tag $IMAGE $IMAGE
 docker tag $IMAGE $LATEST
 docker push $IMAGE
