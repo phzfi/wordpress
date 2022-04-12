@@ -104,7 +104,7 @@ pipeline {
       steps {
         echo "Running unit tests"       
         timeout(15) {
-          sh "docker-compose run test", returnStatus:true
+          sh script:"docker-compose run test", returnStatus:true
           junit 'reports/TEST-default.xml'
         }
 
