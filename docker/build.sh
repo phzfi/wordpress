@@ -13,21 +13,23 @@ usage() {
 # argument parsing
 [ $# -lt 1 ] && usage
 case "$ENV" in
-dev) ;;
+dev) ;; # we can ignore extra arguments
 prod) [ $# -ne 4 ] && usage ;;
 *) usage
 esac
 
-echo "Building ${ENV} ${IMAGE}"
-
 # use phz prefix for dev images and phzfi for prod images
 if [ "$ENV" = 'dev' ]; then
 	IMAGE=phz/ubuntu32-nginx:dev
-	docker build --platform linux/386 -t "$IMAGE" -f Dockerfile . --no-cache
 else # prod
 	IMAGE=phzfi/ubuntu32-nginx:$VERSION
 	LATEST=phzfi/ubuntu32-nginx:latest
-	docker build --platform linux/386 -t "$IMAGE" -f Dockerfile . --no-cache
+fi
+
+echo "Building ${ENV} ${IMAGE}"
+docker build --platform linux/386 -t "$IMAGE" -f Dockerfile . --no-cache
+
+if [ "$ENV" = 'prod' ]; then
 	docker login -u "$USER" -p "$PASSWORD"
 	docker tag "$IMAGE" "$IMAGE"
 	docker tag "$IMAGE" "$LATEST"
