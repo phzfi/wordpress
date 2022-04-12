@@ -10,4 +10,5 @@ RUN /opt/provision.sh
 
 ADD etc/* /etc
 
-CMD ["/etc/init.d/nginx"]
+# daemon must be disabled so the container wont exit immediately
+CMD ["nginx", "-g", "daemon off;"]
