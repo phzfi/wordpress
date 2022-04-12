@@ -2,9 +2,9 @@ version: '3.5'
 services:
   #mock container for smoke testing in CI
   app:
-    image: phz/ubuntu32-nginx:dev
+    image: phzfi/ubuntu32-nginx:dev
   test:
-    image: phz/ubuntu32-nginx:dev
+    image: phzfi/ubuntu32-nginx:dev
     volumes:
      - ./reports:/var/www/html/results
     # simply running test.sh2ju would override the Dockerfile nginx start CMD
