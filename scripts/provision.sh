@@ -10,5 +10,9 @@ apt-get -y install \
     less \
     git \
     wget \
-    curl
+    curl \
+    bc # required by sh2ju
 
+# Install sh2ju, a JUnit compliant test framework for Bash
+# See http://manolocarrasco.blogspot.fi/2010/02/hudson-publish-bach.html
+git -C /usr/src clone https://github.com/manolo/shell2junit.git
