@@ -82,9 +82,9 @@ Security: Update security updates regularly
 
 ### 5.2. Deployment
 
-Run 
+Run
 ```
-./docker/build.sh <version> <docker_hub_username> <docker_hub_password>
+./docker/build.sh prod <version> <docker_hub_username> <docker_hub_password>
 ```
 
 ### 5.3. Smoke Tests
