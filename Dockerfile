@@ -8,7 +8,7 @@ ADD tests/* /opt/
 
 RUN /opt/provision.sh
 
-ADD etc/* /etc
+COPY etc/ /etc
 
 # daemon must be disabled so the container wont exit immediately
 CMD ["nginx", "-g", "daemon off;"]
