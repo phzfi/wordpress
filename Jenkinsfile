@@ -46,7 +46,7 @@ pipeline {
         }
         echo "Changelog:\n${CHANGELOG}"
         sh "./down.sh || true"
-        sh "./clean.sh"
+        sh "./clean.sh || true"
         sh "sudo chown -R jenkins:jenkins ."
 
         echo "Debug branch name"
