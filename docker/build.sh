@@ -6,7 +6,8 @@ USER=$3
 PASSWORD=$4
 
 usage() {
-	echo 'Usage: ./docker/build.sh <dev|prod> [version] [user] [password], e.g. ./docker/build.sh prod latest user password'
+	echo 'usage: ./docker/build.sh <dev|prod> [version] [user] [password]' >&2
+	echo 'e.g.:  ./docker/build.sh prod latest user password' >&2
 	exit 2
 }
 
