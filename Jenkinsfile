@@ -1,31 +1,44 @@
 def CHANGELOG
-def PROJECT_NAME = "ubuntu32-nginx"
+def PROJECT_NAME = "debian-nginx"
 def SLACK_CHANNEL = "#marketing"
 pipeline {
   agent {
-    label 'docker'
+    label 'docker && slave'
   }
 
   environment {
     BRANCH_NAME = "${GIT_BRANCH}"
-    BUILD_ENV = [master: 'prod', develop: 'stg'].get(GIT_BRANCH, 'dev')
-    VERSION = "${currentBuild.number}"
+
+    //Multibranch pipeline
+    BUILD_ENV = [master: 'prod', develop: 'stg'].get(env.BRANCH_NAME, 'dev')
+    VERSION = "${currentBuild.id}"
+
     SERVICE_NAME = "${PROJECT_NAME}-${BUILD_ENV}"
   }
 
   options {
     ansiColor('xterm')
-    gitLabConnection('ubuntu32-nginx')
-    //skipDefaultCheckout(true)
+    //set default pipeline timeout to 3hours if there is a jam, it will abort automatically
+    timeout(time: 180, unit: 'MINUTES')
   }
 
   triggers {
     gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
+    pollSCM('H/5 8-20 1-6 * *')
   }
 
   stages {
-    stage("Clean") {
+    stage("Prepare") {
       steps {
+        checkout scm
+
+        //If building custom branch, the BUILD_ENV setting above returns null, revert to dev
+        script {
+          if (BUILD_ENV == null) {
+            BUILD_ENV = 'dev'
+          }
+        }
+
         script {
           echo "Parse changelog"
           def changeLogSets = currentBuild.rawBuild.changeSets
@@ -45,18 +58,15 @@ pipeline {
           }
         }
         echo "Changelog:\n${CHANGELOG}"
-        sh "./down.sh || true"
-        sh "./clean.sh || true"
-        sh "sudo chown -R jenkins:jenkins ."
+      }
+    }
 
-        echo "Debug branch name"
-        echo "env.gitlabBranch: " + env.gitlabBranch
-        echo "scm.branches[0].name: " + scm.branches[0].name
-        echo "{GIT_BRANCH}: " + "${GIT_BRANCH}"
-        echo "BRANCH_NAME is set to: " + "${BRANCH_NAME}"
-
-        checkout scm
-        updateGitlabCommitStatus name: 'Clean', state: 'success'
+    stage("Clean") {
+      steps {
+        script {
+          sh "./down.sh > /dev/null 2>&1 || true"
+          sh "./clean.sh > /dev/null 2>&1 || true"
+        }
       }
     }
 
@@ -66,12 +76,10 @@ pipeline {
         timeout(30) {
           echo "Start provisioning"
         }
-
-        updateGitlabCommitStatus name: 'Provision', state: 'success'
       }
     }
 
-    stage("Build & Publish") {
+    stage("Build") {
       when {
         expression {[master: true, develop: true].get(BRANCH_NAME, false)}
       }
@@ -83,86 +91,104 @@ pipeline {
             sh script:"./docker/build.sh prod ${VERSION} ${DOCKER_HUB_USERNAME} ${DOCKER_HUB_PASSWORD}", returnStatus:true
           }
         }
-
-        updateGitlabCommitStatus name: 'Build & Publish', state: 'success'
       }
     }
 
     stage("Quality") {
       steps {
         echo "Running Code Quality checks"
-        timeout(15) {
-          sh script:"docker-compose -f docker-compose.prod.yml up -d", returnStatus:true
+//        timeout(15) {
+//          sh script:"docker-compose -f docker-compose.prod.yml up -d", returnStatus:true
           //sh script:"./up.sh", returnStatus:true
           //sh script:"docker-compose run web syntax-check.sh", returnStatus:true
-        }
-
-        updateGitlabCommitStatus name: 'Quality', state: 'success'
+//        }
       }
     }
 
-    stage("Unit Test") {
+    stage("Test") {
       steps {
         echo "Running unit tests"       
-        timeout(15) {
-          sh script:"docker-compose -f docker-compose.prod.yml run test", returnStatus:true
-          junit 'reports/TEST-default.xml'
-        }
-
-        updateGitlabCommitStatus name: 'Unit Test', state: 'success'
+//        timeout(15) {
+//          sh script:"docker-compose -f docker-compose.prod.yml run test", returnStatus:true
+//          junit 'reports/TEST-default.xml'
+//        }
       }
     }
 
-    stage("Acceptance Test") {
-      when {
-        expression {[master: true, develop: true].get(BRANCH_NAME, false)}
-      }
+    stage("Tag") {
       steps {
-        echo "Running Acceptance Tests"
-//        build job: 'another-job', propagate: false
-
-        updateGitlabCommitStatus name: 'Acceptance Test', state: 'success'
+        withCredentials([sshUserPrivateKey(credentialsId: 'git-ssh-ci', keyFileVariable: 'SSH_KEY')]) {
+          script {
+            if (env.BUILD_ENV != 'dev') {
+              sshagent(credentials: ['git-ssh-ci']) {
+                sh('set +x && '
+                + 'TAG_NAME="' + env.BUILD_ENV + '-' + env.VERSION + '" && '
+                + 'git tag -d $TAG_NAME || true && ' // delete 'exists' tag from local git repository. (if previous push failed)
+                + 'git tag -a $TAG_NAME -m Jenkins && '   // create new tag.
+                + 'git push origin $TAG_NAME --no-verify' // push the new tag.
+                )
+              }
+            } else {
+              echo "Skipping Git Tag for git development branches..."
+            }
+          }
+        }
       }
     }
+
   }
 
   post {
     always {
       script {
-        //sh "./down.sh || true"
-        sh "sudo chown -R jenkins:jenkins ."
-      }
-    }
-    success {
       script {
-        if ([master: true, develop: true].get(BRANCH_NAME, false)) {
-          //TODO fatal: could not read Username for 'http://git.in.phz.fi': No such device or address
-          //sh "git tag -a -m \"${env.BUILD_ENV}-${env.BUILD_NUMBER}\" ${env.BUILD_ENV}-${env.BUILD_NUMBER}"
-          //sh "git push --tags"
-
-          //slackSend channel: "${SLACK_CHANNEL}", color: "green", message: "${PROJECT_NAME} ${env.BUILD_ENV}-${env.BUILD_NUMBER} build succeeded! Please download container for Smoke Testing: ${PROJECT_LOCATION}). After Smoke Tests (see README.md #4.1), please Add Reaction thumbsup or thumbsdown depending whether Smoke Test cases pass or not.\n${CHANGELOG}", notifyCommitters: true
+        //See https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/troubleshooting-guides/how-to-troubleshoot-hudson-filepath-is-missing-i>
+        if (getContext(hudson.FilePath)) {
+          sh "./clean.sh > /dev/null 2>&1 || true"
         }
       }
+      script {
+        sh "./down.sh > /dev/null 2>&1 || true"
+      }
+      // Workaround to the clean issue, can't delete folder as folder is owned by docker user 'root'.
+      sh "sudo chown -R jenkins:jenkins ${workspace}"
+      }
     }
+
+    success {
+      slackSend channel: "${env.SLACK_CHANNEL}", color: "good", message: "Deployed ${env.JOB_NAME}#${env.BUILD_NUMBER} successfully to ${env.BUILD_ENV}.\nPlease Smoke Tests (see README.md #4.1). Add Reaction thumbsup or thumbsdown to indicate Smoke Test cases pass or not.\n${CHANGELOG}"
+
+      emailext (
+        subject: "Deployed ${env.JOB_NAME} to ${env.BUILD_ENV} [${env.BUILD_NUMBER}]",
+        body: """<p>New build completed and deployed successfully: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+          <p>Please Smoke Tests (see README.md #4.1). Add Reaction thumbsup or thumbsdown on Slack to indicate Smoke Test cases pass or not.</p>
+          <p>${CHANGELOG}""",
+        recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+      )
+    }
+
     unstable {
-        slackSend channel: "${SLACK_CHANNEL}", color: "yellow", message: "UNSTABLE: ${PROJECT_NAME} ${env.BUILD_ENV}-${env.BUILD_NUMBER} See (${env.RUN_DISPLAY_URL}) - more unit tests and code coverage needed for branch ${BRANCH_NAME}", notifyCommitters: true
+      slackSend channel: "${env.SLACK_CHANNEL}", color: "warning", message: "Unstable build ${env.JOB_NAME}#${env.BUILD_NUMBER} to ${env.BUILD_ENV}.\nPlease fix: ${env.BUILD_URL}console#footer\n${CHANGELOG}"
 
-        emailext (
-          subject: "Unstable: ${PROJECT_NAME} ${env.BUILD_ENV}-${env.BUILD_NUMBER}",
-          body: """${PROJECT_NAME} build become unstable (test coverage is not enough): '${env.BUILD_ENV}-${env.BUILD_NUMBER}':
-            Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.BUILD_ENV}-${env.BUILD_NUMBER}</a>&QUOT;""",
-          recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-        )
+      emailext (
+        subject: "Unstable build ${env.JOB_NAME} to ${env.BUILD_ENV} [${env.BUILD_NUMBER}]",
+        body: """<p>Unstable build: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+          <p>Check console output at &QUOT;<a href='${env.BUILD_URL}console#footer'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>
+          <p>${CHANGELOG}""",
+        recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+      )
     }
-    failure {
-        slackSend channel: "${SLACK_CHANNEL}", color: "red", message: "FAIL: ${PROJECT_NAME} ${env.BUILD_ENV}-${env.BUILD_NUMBER} See (${env.RUN_DISPLAY_URL}) for the reason and please fix the branch ${BRANCH_NAME} and code to pass again", notifyCommitters: true
 
-        emailext (
-          subject: "FAIL: ${PROJECT_NAME} ${env.BUILD_ENV}-${env.BUILD_NUMBER}",
-          body: """${PROJECT_NAME} build failed: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':
-            Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.BUILD_ENV}-${env.BUILD_NUMBER}</a>&QUOT;""",
-          recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-        )
+    failure {
+      slackSend channel: "${env.SLACK_CHANNEL}", color: "danger", message: "FAIL ${env.JOB_NAME}#${env.BUILD_NUMBER} to ${env.BUILD_ENV}.\nPlease fix: ${env.BUILD_URL}console#footer\n${CHANGELOG}"
+
+      emailext (
+        subject: "Failed to build ${env.JOB_NAME} to ${env.BUILD_ENV} [${env.BUILD_NUMBER}]",
+        body: """<p>Build failed: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+          <p>Check console output at &QUOT;<a href='${env.BUILD_URL}console#footer'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>
+          <p>${CHANGELOG}""",
+        recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+      )
     }
   }
 }

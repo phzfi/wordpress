@@ -1,14 +1,12 @@
-# ubuntu32-nginx
+# debian-nginx
 
-For https://hub.docker.com/r/phzfi/ubuntu32-nginx
+For https://hub.docker.com/r/phzfi/debian-nginx
 
 ## 1. Project Description
 
-Docker image for ubuntu32-nginx
+Docker image for debian-nginx
 
 ### 1.1. Business Vision
-
-Utilize older 32bit machines as docker hosts for sustainable life cycle as part of PHZ.fi mission. Older computers are as good as new ones, often more reliable, and perfectly suited for smaller projects, staging sites and lightweight programming languages such as Golang, C, PHP etc.
 
 ### 1.2. Task Management
 
@@ -16,11 +14,9 @@ Utilize older 32bit machines as docker hosts for sustainable life cycle as part 
 
 ### 1.4. Use Cases
 
-This project enables for example Wordpress to be run on 32bit Ubuntu with ubuntu32-php-fpm, or any other service running nginx.
+This project enables for example nginx to be run on Debian docker for example with phzfi/debian-php-fpm, or any other service with nginx.
 
 ### 1.5. Non-Functional Requirements
-
-Sustainability: Run 32bit containers on older hardware to reduce waste of working machines.
 
 Ease of Use: Instead of being the most lightweight container out there, this container aims to be developer friendly.
 
@@ -31,8 +27,8 @@ Security: Update security updates regularly
 ### 2.1. Technologies
 
 * Nginx
-* Docker 32bit
-* Ubuntu bionic/18.04
+* Docker
+* Debian 
 * Jenkins (declarative multibranch pipeline)
 * sh2ju for testing
 
