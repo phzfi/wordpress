@@ -21,14 +21,15 @@ esac
 
 # use phz prefix for dev images and phzfi for prod images
 if [ "$ENV" = 'dev' ]; then
-	IMAGE=phz/ubuntu32-nginx:dev
+	IMAGE=phz/debian-nginx:dev
 else # prod
-	IMAGE=phzfi/ubuntu32-nginx:$VERSION
-	LATEST=phzfi/ubuntu32-nginx:latest
+	IMAGE=phzfi/debian-nginx:$VERSION
+	LATEST=phzfi/debian-nginx:latest
 fi
 
 echo "Building ${ENV} ${IMAGE}"
-docker build --platform linux/386 -t "$IMAGE" -f Dockerfile . --no-cache
+#docker build --platform linux/386 -t "$IMAGE" -f Dockerfile . --no-cache
+docker build -t "$IMAGE" -f Dockerfile . --no-cache
 
 if [ "$ENV" = 'prod' ]; then
 	docker login -u "$USER" -p "$PASSWORD"
