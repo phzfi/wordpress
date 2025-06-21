@@ -1,14 +1,14 @@
-# debian-php-fpm
+# PHZ Wordpress
 
-For https://hub.docker.com/r/phzfi/debian-php-fpm
+For https://hub.docker.com/r/phzfi/wordpress
 
 ## 1. Project Description
 
-Docker image for debian-php-fpm
+PHZ Docker image for wordpress on phzfi/debian
 
 ### 1.1. Business Vision
 
-Easy to use php-fpm
+Easy to use Wordpress image on Debian and nginx/php-fpm.
 
 ### 1.2. Task Management
 
@@ -16,7 +16,7 @@ Easy to use php-fpm
 
 ### 1.4. Use Cases
 
-This project enables php-fpm to be run on Debian docker for example with phzfi/wordpress, or any other service requiring php-fpm.
+This project enables cloud native Wordpress to be run on Debian docker.
 
 ### 1.5. Non-Functional Requirements
 
@@ -28,6 +28,8 @@ Security: Update security updates regularly
 
 ### 2.1. Technologies
 
+* Wordpress
+* Composer
 * PHP-FPM
     php-mysql
     php-curl

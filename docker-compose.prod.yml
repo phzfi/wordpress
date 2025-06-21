@@ -1,9 +1,9 @@
 services:
   #mock container for smoke testing in CI
   app:
-    image: phzfi/debian-php-fpm:latest
+    image: phzfi/wordpress:latest
   test:
-    image: phzfi/debian-php-fpm:latest
+    image: phzfi/wordpress:latest
     volumes:
      - ./reports:/var/www/html/results
     # simply running test.sh2ju would override the Dockerfile nginx start CMD
