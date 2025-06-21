@@ -1,5 +1,4 @@
-#FROM phzfi/ubuntu32:bionic
-FROM phzfi/ubuntu32:bionic-20211118
+FROM phzfi/debian:bookworm-latest
 
 WORKDIR /var/www/html
 
@@ -10,5 +9,5 @@ RUN /opt/provision.sh
 
 COPY etc/ /etc
 
-# daemon must be disabled so the container wont exit immediately
+# daemon must be disabled so the container won't exit immediately
 CMD ["nginx", "-g", "daemon off;"]
