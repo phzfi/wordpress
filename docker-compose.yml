@@ -7,5 +7,5 @@ services:
     volumes:
      - ./reports:/var/www/html/results
     # simply running test.sh2ju would override the Dockerfile nginx start CMD
-    command: ["sh", "-c", "nginx && /opt/test.sh2ju"]
+    command: ["sh", "-c", "php -v && /opt/test.sh2ju"]
     #command: ["tail", "-F", "/dev/null"] # keep container running for testing

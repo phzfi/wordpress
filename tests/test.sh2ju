@@ -5,7 +5,7 @@ source /usr/src/shell2junit/sh2ju.sh
 source ~/.env
 
 juLog -name=TestGitIsInstalled      [ "$(command -v git)" ]
-juLog -name=TestWebServerIsRunning  [ "$(pgrep nginx)" ]
+juLog -name=TestWebServerIsRunning  [ "$(pgrep php-fpm)" ]
 
 touch results/provision-completed-api.txt
 exit 0
