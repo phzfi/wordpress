@@ -6,7 +6,8 @@ apt-get update
 add-apt-repository ppa:ondrej/php
 apt-get -y install \
     ssmtp \
-    php8.3 \
+    php8.3-fpm \
+    php8.3-cli \
     php-fpm \
     php-mysql \
     php-curl \
