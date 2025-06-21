@@ -1,11 +1,23 @@
 #!/bin/sh
 
-apt-get update
-apt-get -y install \
-    nginx-extras \
-    nano \
-    less \
-    git \
-    wget \
-    curl
+mkdir -p etc/
 
+apt-get update
+add-apt-repository ppa:ondrej/php
+apt-get -y install \
+    ssmtp \
+    php8.3 \
+    php-fpm \
+    php-mysql \
+    php-curl \
+    php-gd \
+    php-tidy \
+    php-memcache \
+    php-apcu \
+    php-pear \
+    php-imap \
+    php-intl \
+    php-ssh2 \
+    php-zip \
+    php-xml \
+    php-xmlrpc

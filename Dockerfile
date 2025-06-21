@@ -10,4 +10,4 @@ RUN /opt/provision.sh
 COPY etc/ /etc
 
 # daemon must be disabled so the container won't exit immediately
-CMD ["/usr/sbin/php-fpm8.0", "--fpm-config", "/etc/php/8.0/fpm/php-fpm.conf"]
+CMD ["/usr/sbin/php-fpm8.3", "--fpm-config", "/etc/php/8.3/fpm/php-fpm.conf"]
