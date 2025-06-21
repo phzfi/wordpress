@@ -1,5 +1,5 @@
 def CHANGELOG
-def PROJECT_NAME = "debian-nginx"
+def PROJECT_NAME = "debian-php-fpm"
 def SLACK_CHANNEL = "#marketing"
 pipeline {
   agent {

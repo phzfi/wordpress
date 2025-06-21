@@ -1,12 +1,14 @@
-# debian-nginx
+# debian-php-fpm
 
-For https://hub.docker.com/r/phzfi/debian-nginx
+For https://hub.docker.com/r/phzfi/debian-php-fpm
 
 ## 1. Project Description
 
-Docker image for debian-nginx
+Docker image for debian-php-fpm
 
 ### 1.1. Business Vision
+
+Easy to use php-fpm
 
 ### 1.2. Task Management
 
@@ -14,7 +16,7 @@ Docker image for debian-nginx
 
 ### 1.4. Use Cases
 
-This project enables for example nginx to be run on Debian docker for example with phzfi/debian-php-fpm, or any other service with nginx.
+This project enables php-fpm to be run on Debian docker for example with phzfi/wordpress, or any other service requiring php-fpm.
 
 ### 1.5. Non-Functional Requirements
 
@@ -26,7 +28,7 @@ Security: Update security updates regularly
 
 ### 2.1. Technologies
 
-* Nginx
+* PHP-FPM
 * Docker
 * Debian 
 * Jenkins (declarative multibranch pipeline)
