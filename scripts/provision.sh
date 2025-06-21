@@ -1,17 +1,15 @@
 #!/bin/sh
 
-mkdir -p etc/
-
+#add-apt-repository ppa:ondrej/php
 apt-get update
-add-apt-repository ppa:ondrej/php
 apt-get -y install \
     ssmtp \
-    php8.3-fpm \
-    php8.3-cli \
+    php8.2-fpm \
+    php8.2-cli \
     php-fpm \
     php-mysql \
     php-curl \
-    php-gd \
+    php-imagick \
     php-tidy \
     php-memcache \
     php-apcu \

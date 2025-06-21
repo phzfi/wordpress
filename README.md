@@ -29,6 +29,22 @@ Security: Update security updates regularly
 ### 2.1. Technologies
 
 * PHP-FPM
+    php-mysql
+    php-curl
+    php-imagick
+    php-tidy
+    php-memcache
+    php-apcu
+    php-pear
+    php-imap
+    php-intl
+    php-ssh2
+    php-zip
+    php-xml
+    php-xmlrpc
+
+* PHP-CLI
+* SSMTP for sending email
 * Docker
 * Debian 
 * Jenkins (declarative multibranch pipeline)
