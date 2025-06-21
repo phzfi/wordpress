@@ -29,7 +29,7 @@ fi
 
 echo "Building ${ENV} ${IMAGE}"
 #docker build --platform linux/386 -t "$IMAGE" -f Dockerfile . --no-cache
-docker build -t "$IMAGE" -f Dockerfile . --no-cache
+docker build -t "$IMAGE" -f Dockerfile . --no-cache || exit $?
 
 if [ "$ENV" = 'prod' ]; then
 	docker login -u "$USER" -p "$PASSWORD"
