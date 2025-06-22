@@ -1,4 +1,4 @@
-FROM phzfi/debian-php-fpm:bookworm-latest
+FROM phzfi/debian-php-fpm:latest
 
 WORKDIR /var/www/html
 
