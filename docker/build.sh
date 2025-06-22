@@ -21,10 +21,10 @@ esac
 
 # use phz prefix for dev images and phzfi for prod images
 if [ "$ENV" = 'dev' ]; then
-	IMAGE=phz/debian-php-fpm:dev
+	IMAGE=phzfi/wordpress:dev
 else # prod
-	IMAGE=phzfi/debian-php-fpm:$VERSION
-	LATEST=phzfi/debian-php-fpm:latest
+	IMAGE=phzfi/wordpress:$VERSION
+	LATEST=phzfi/wordpress:latest
 fi
 
 echo "Building ${ENV} ${IMAGE}"
