@@ -25,6 +25,7 @@ pipeline {
   triggers {
     pollSCM('H/5 8-20 1-6 * *')
     cron('30 02 * * 2')
+    upstream(upstreamProjects: 'debian-php-fpm', threshold: hudson.model.Result.SUCCESS)
   }
 
   stages {
